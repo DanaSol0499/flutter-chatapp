@@ -1,5 +1,7 @@
 import 'package:chatapp/models/usuario.dart';
+import 'package:chatapp/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class UsuarioPage extends StatefulWidget {
@@ -20,10 +22,12 @@ class _UsuarioPageState extends State<UsuarioPage> {
   ];
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Mi nombre',
+            usuario!.nombre,
             style: TextStyle(
               color: Colors.pink[200],
             ),
@@ -35,7 +39,11 @@ class _UsuarioPageState extends State<UsuarioPage> {
                 Icons.exit_to_app_outlined,
                 color: Colors.pink[200],
               ),
-              onPressed: () {}),
+              onPressed: () {
+                //TODO desconectarnos del socketserver
+                Navigator.pushReplacementNamed(context, 'login');
+                AuthService.deleteToken();
+              }),
           actions: <Widget>[
             Container(
               margin: EdgeInsets.only(right: 10),
@@ -67,17 +75,17 @@ class _UsuarioPageState extends State<UsuarioPage> {
 
   ListTile _usuarioListTile(Usuario usuario) {
     return ListTile(
-      title: Text(usuario.nombre!),
-      subtitle: Text(usuario.email!),
+      title: Text(usuario.nombre),
+      subtitle: Text(usuario.email),
       leading: CircleAvatar(
         backgroundColor: Colors.purple[100],
-        child: Text(usuario.nombre!.substring(0, 2)),
+        child: Text(usuario.nombre.substring(0, 2)),
       ),
       trailing: Container(
         width: 10,
         height: 10,
         decoration: BoxDecoration(
-            color: usuario.online! ? Colors.green[200] : Colors.red,
+            color: usuario.online ? Colors.green[200] : Colors.red,
             borderRadius: BorderRadius.circular(100)),
       ),
     );

@@ -1,9 +1,12 @@
+import 'package:chatapp/helpers/mostrar_alerta.dart';
+import 'package:chatapp/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatapp/widgets/inputs.dart';
 import 'package:chatapp/widgets/labels.dart';
 import 'package:chatapp/widgets/logo.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegistroPage extends StatelessWidget {
   @override
@@ -48,6 +51,8 @@ class __FormState extends State<_FormState> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -56,8 +61,7 @@ class __FormState extends State<_FormState> {
           CustomInputs(
             icon: Icons.supervised_user_circle,
             placeholder: 'Nombre',
-            keyboardType: TextInputType.emailAddress,
-            textController: emailCtrl,
+            textController: nombreCtrl,
           ),
           CustomInputs(
             icon: Icons.mail_outline,
@@ -74,15 +78,32 @@ class __FormState extends State<_FormState> {
           ElevatedButton(
               style: ElevatedButton.styleFrom(
                   elevation: 2, shape: StadiumBorder(), primary: Colors.blue),
-              onPressed: () {
-                print(emailCtrl.text);
-              },
+              onPressed: authService.autenticando
+                  ? null
+                  : () async {
+                      print(nombreCtrl.text);
+                      print(emailCtrl.text);
+                      print(passCtrl.text);
+
+                      final registroOk = await authService.register(
+                          nombreCtrl.text.trim(),
+                          emailCtrl.text.trim(),
+                          passCtrl.text.trim());
+
+                      if (registroOk == true) {
+                        //TODO Conectar socket server
+                        Navigator.pushReplacementNamed(context, 'usuarios');
+                      } else {
+                        mostarAlerta(
+                            context, ' Registro incorrecto', registroOk);
+                      }
+                    },
               child: Container(
-                width: 60,
+                width: 100,
                 height: 55,
                 child: Center(
                   child: Text(
-                    'Ingresar',
+                    'Crear cuenta',
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
                 ),
